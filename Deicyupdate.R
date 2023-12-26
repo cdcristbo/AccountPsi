@@ -9,7 +9,8 @@ library(dplyr)
 
 # Define la base de datos inicial de pagos
 pagos <- data.frame(
-  FECHA = as.Date(character()),
+  FECHA = as.Date(character(), format = "%Y-%m-%d"),
+  #FECHA = as.Date(character()),
   ID = integer(),
   NOMBRE = character(),
   DIA_DEL_COBRO = as.Date(character()),
@@ -97,6 +98,8 @@ ui <- fluidPage(
   )
 )
 
+# ...
+
 # Define el servidor
 server <- function(input, output, session) {
   # Almacena la información de los pagos
@@ -128,7 +131,7 @@ server <- function(input, output, session) {
   observeEvent(input$registrarPago, {
     # Verificar si el paciente existe
     paciente_existente <- pacientes_data() %>%
-      filter(ID == as.integer(input$id) )
+      filter(ID == as.integer(input$id))
     
     if (nrow(paciente_existente) == 0) {
       # Paciente no existe, mostrar mensaje de advertencia
@@ -185,6 +188,14 @@ server <- function(input, output, session) {
       nuevo_pais <- input$otroPais
     } else {
       nuevo_pais <- input$pais
+    }
+    
+    # Validar que el ID del paciente no exista
+    if (as.integer(input$idPaciente) %in% pacientes_data()$ID) {
+      output$mensajeAlerta <- renderText({
+        paste("El ID (Cedula) ", input$idPaciente, " ya existe. Por favor, ingrese un ID único.")
+      })
+      return()
     }
     
     # Validar que el ID del paciente no esté vacío
