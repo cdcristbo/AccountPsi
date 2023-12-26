@@ -113,11 +113,22 @@ server <- function(input, output, session) {
     updateSelectizeInput(session, 'nombre', choices = nombres_pacientes)
   })
   
+  # Observador para el cambio de paciente seleccionado
+  observe({
+    # Obtener el ID del paciente seleccionado
+    id_seleccionado <- pacientes_data() %>%
+      filter(NOMBRE == input$nombre) %>%
+      pull(ID)
+    
+    # Actualizar el campo de ID con el ID del paciente seleccionado
+    updateTextInput(session, "id", value = id_seleccionado)
+  })
+  
   # Observador para el botón de registrar pagos
   observeEvent(input$registrarPago, {
     # Verificar si el paciente existe
     paciente_existente <- pacientes_data() %>%
-      filter(ID == as.integer(input$id))
+      filter(ID == as.integer(input$id) )
     
     if (nrow(paciente_existente) == 0) {
       # Paciente no existe, mostrar mensaje de advertencia
@@ -174,6 +185,14 @@ server <- function(input, output, session) {
       nuevo_pais <- input$otroPais
     } else {
       nuevo_pais <- input$pais
+    }
+    
+    # Validar que el ID del paciente no esté vacío
+    if (is.null(input$idPaciente) || input$idPaciente == "") {
+      output$mensajeAlerta <- renderText({
+        "El campo 'ID (Cedula)' no puede estar vacío. Por favor, ingrese un ID para el paciente."
+      })
+      return()
     }
     
     # Crear nuevo paciente con la información proporcionada
