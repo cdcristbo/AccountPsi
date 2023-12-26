@@ -113,11 +113,22 @@ server <- function(input, output, session) {
     updateSelectizeInput(session, 'nombre', choices = nombres_pacientes)
   })
   
-    # Observador para el botón de registrar pagos
+  # Observador para el cambio de paciente seleccionado
+  observe({
+    # Obtener el ID del paciente seleccionado
+    id_seleccionado <- pacientes_data() %>%
+      filter(NOMBRE == input$nombre) %>%
+      pull(ID)
+    
+    # Actualizar el campo de ID con el ID del paciente seleccionado
+    updateTextInput(session, "id", value = id_seleccionado)
+  })
+  
+  # Observador para el botón de registrar pagos
   observeEvent(input$registrarPago, {
     # Verificar si el paciente existe
     paciente_existente <- pacientes_data() %>%
-      filter(ID == as.integer(input$id) | NOMBRE == input$nombre)
+      filter(ID == as.integer(input$id) )
     
     if (nrow(paciente_existente) == 0) {
       # Paciente no existe, mostrar mensaje de advertencia
