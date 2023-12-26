@@ -1,0 +1,43 @@
+FECHA,ID,NOMBRE,DIA_DEL_COBRO,DIA_DEL_PAGO,VALOR_CONSULTA,ABONO,MONEDA,PAGO,OBSERVACIONES,FORMA_DE_PAGO
+12/21/2023,32,carlos,12/21/2023,12/21/2023,32,3,Dolar,Credito,fs,BANCOLOMBIA
+12/21/2023,21,da,12/21/2023,12/21/2023,42,3,Pesos,Debito,pago ,
+12/21/2023,32,carlos,12/21/2023,12/21/2023,2,3,Dolar,Credito,fs,
+12/21/2023,21,da,12/21/2023,12/21/2023,765,3,Pesos,Credito,pago ,PAYPAL
+12/21/2023,32,carlos,12/21/2023,12/21/2023,23,3,Dolar,Debito,fs,BANCOLOMBIA 
+12/21/2023,21,da,12/21/2023,12/21/2023,7,3,Pesos,Credito,pago ,BANCOLOMBIA 
+12/21/2023,21,da,12/21/2023,12/21/2023,423,3,Pesos,Credito,pago ,BANCOLOMBIA 
+12/21/2023,32,carlos,11 de sep - cobro agosto,9/14/2023,33,"640,000",Pesos,Contado,paga todas pareja e indiiduales de yeri,BANCOLOMBIA 
+12/21/2023,21,da,11 de sep - cobro agosto,9/14/2023,43,"640,000",Pesos,Credito,,
+12/21/2023,32,carlos,11 de sep - cobro agosto,,3,,Pesos,,no tenian programas en agosto,
+12/21/2023,21,da,11 de sep - cobro agosto,,766,,Pesos,,no tenian programas en agosto,SANTANDER
+12/21/2023,32,carlos,11 de sep - cobro agosto,7/31/2023,24,416,Dolares,Contado,las pago por adelnnatado ,PAYPAL
+12/21/2023,21,da,11 de sep - cobro agosto,8/11/2023,8,50.49,Dolares,Contado,,BANCOLOMBIA 
+12/21/2023,21,da,10 de oct - cobro septiembre,10/18/2023,424,"80,000",Pesos,Credito,pago el 18 de octubre,BANCOLOMBIA 
+12/21/2023,32,carlos,10 de oct - cobro septiembre,9/3/2023,34,"160,000",Pesos,Contado,,BANCOLOMBIA 
+12/21/2023,21,da,10 de oct - cobro septiembre,,44,"80,000",Pesos,Credito,,BANCOLOMBIA 
+12/21/2023,32,carlos,10 de oct - cobro septiembre,10/5/2023,4,"40,000",Pesos,Contado,,SANTANDER
+12/21/2023,21,da,11 de sep - cobro agosto,10/10/2023,767,"1,000,000",Pesos,Credito,queda debiendo 350.000,BANCOLOMBIA 
+12/21/2023,21,da,11 de sep - cobro agosto,-,25,"60,000",Pesos,Credito,Paga el 13 de octubre cuando regrese de su viaje ,BANCOLOMBIA 
+12/21/2023,32,carlos,10 de oct - cobro septiembre,10/4/2023,9,50,Dolares,Contado,,PAY U
+12/21/2023,21,da,10 de oct - cobro septiembre,,425,,Pesos,,No agendo en septiembre ,BANCOLOMBIA 
+12/21/2023,21,da,10 de oct - cobro septiembre,10/11/2023,35,"160,000",Pesos,Credito,,BANCOLOMBIA 
+12/21/2023,21,da,10 de oct - cobro septiembre,-,45,-,Pesos,-,No programo en septiembre ,BANCOLOMBIA 
+12/21/2023,32,carlos,10 de oct - cobro septiembre,,5,"160,000",Pesos,Credito,debe cita en pareja y 40.000,BANCOLOMBIA 
+12/21/2023,21,da,10 de oct - cobro septiembre,-,768,"620,000",Pesos,Credito,debe cita en pareja y agosto,BANCOLOMBIA 
+12/21/2023,21,da,10 de oct - cobro septiembre,9/3/2023,26,"800,000",Pesos,Contado,Pago cita del 3 de octubre ,BANCOLOMBIA 
+12/21/2023,32,carlos,10 de oct - cobro septiembre,,10,,Pesos,,No programo en septiembre ,
+12/21/2023,32,carlos,10 de oct - cobro septiembre,10/6/2023,426,"750,000",Pesos,Contado,,PAY U
+12/21/2023,21,da,10 de oct - cobro septiembre,10/6/2023,36,"750,000",Pesos,Contado,,PAY U
+12/21/2023,32,carlos,10 de oct - cobro septiembre,10/5/2023,46,"1,200,000",Pesos,Contado,,BANCOLOMBIA 
+12/21/2023,21,da,10 de oct - cobro septiembre,10/5/2023,6,"1,200,000",Pesos,Contado,,BANCOLOMBIA 
+12/21/2023,21,da,10 de oct - cobro septiembre,,769,52,Dolares,Credito,cita en pareja ,PAY PAL
+12/21/2023,32,carlos,10 de oct - cobro septiembre,,27,,Dolares,Credito,debe 104,PAY PAL
+12/21/2023,21,da,10 de oct - cobro septiembre,,11,,Pesos,Credito,debe 35.000 más dos de pareja,
+12/21/2023,32,carlos,10 de oct - cobro septiembre,,427,,Pesos,Credito,debe 70.000 más dos de pareja ,
+12/21/2023,21,da,10 de oct - cobro septiembre,,37,,Pesos,Credito,,BANCOLOMBIA
+12/21/2023,21,da,10 de oct - cobro septiembre,,47,,Pesos,,no programo e septiembre ,BAMCOLOMBIA
+12/21/2023,32,carlos,10 de oct - cobro septiembre,10/4/2023,7,"90,000",Pesos,Contado,"pago las citas de el, ella y pareja ",SANTANDER
+12/21/2023,21,da,10 de oct - cobro septiembre,10/4/2023,770,"90,000",Pesos,Contado,,SANTANDER
+12/21/2023,32,carlos,10 de oct - cobro septiembre,,28,,Dolares,Credito,debe 1 sesion de sep,PAY PAL
+12/21/2023,21,da,10 de oct - cobro septiembre,,12,,Dolares,Credito,debe 1 sesion de sep,PAY PAL
+12/21/2023,32,,19715,19715,23,534,Dolar,-6,,Credito
