@@ -1,3 +1,4 @@
+# ...
 # Instala e inicia Shiny si no lo has hecho
 if (!requireNamespace("shiny", quietly = TRUE)) {
   install.packages("shiny")
@@ -9,8 +10,7 @@ library(dplyr)
 
 # Define la base de datos inicial de pagos
 pagos <- data.frame(
-  FECHA = as.Date(character(), format = "%Y-%m-%d"),
-  #FECHA = as.Date(character()),
+  FECHA = as.Date(character()),
   ID = integer(),
   NOMBRE = character(),
   DIA_DEL_COBRO = as.Date(character()),
@@ -60,7 +60,6 @@ ui <- fluidPage(
         tabPanel("Pagos",
                  dateInput("fechaConsulta", "Fecha de Consulta:", Sys.Date()),
                  textInput("id", "ID (Cedula):", ""),
-                 # En el UI
                  selectizeInput("nombre", "Nombre:", choices = NULL, multiple = FALSE, options = list(placeholder = 'Seleccione un paciente...')),
                  dateInput("diaCobro", "Día del Cobro:", Sys.Date()),
                  dateInput("diaPago", "Día del Pago:", Sys.Date()),
@@ -86,19 +85,19 @@ ui <- fluidPage(
                  numericInput("cel", "Contacto:", value = NULL),
                  selectInput("terapia", "Terapia:", c("", "Individual", "Pareja"), selected = ""),
                  textInput("frecuencia", "Frecuencia:", ""),
-                 actionButton("registrarPaciente", "Registrar Paciente")
+                 actionButton("registrarPaciente", "Registrar Paciente"),
+                 actionButton("modificarPaciente", "Modificar Paciente")
         )
       )
     ),
     mainPanel(
       tableOutput("pagosTable"),
       tableOutput("pacientesTable"),
+      tableOutput("pacientesModificablesTable"),
       textOutput("mensajeAlerta")
     )
   )
 )
-
-# ...
 
 # Define el servidor
 server <- function(input, output, session) {
