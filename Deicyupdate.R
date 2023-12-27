@@ -147,7 +147,7 @@ server <- function(input, output, session) {
     } else {
       # Crear nueva información de pago con la información proporcionada
       nuevo_pago <- data.frame(
-        FECHA = strftime(input$diaCobro, format = "", tz = "", usetz = FALSE),
+        FECHA = strftime(input$fechaConsulta, format = "", tz = "", usetz = FALSE),
         #FECHA = format(Sys.Date(), "%Y-%m-%d"),
         ID = as.integer(input$id),
         NOMBRE = input$nombre,
