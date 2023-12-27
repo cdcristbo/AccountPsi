@@ -43,9 +43,8 @@ archivo_csv_pacientes <- "pacientes.csv"
 
 # Si el archivo existe, carga los datos
 if (file.exists(archivo_csv_pagos)) {
-  pagos <- read.csv(archivo_csv_pagos, stringsAsFactors = FALSE)
-  read_csv("pagos.csv", col_types = cols(FECHA = col_date(format = "%m/%d/%Y"), 
-                                         DIA_DEL_COBRO = col_datetime(format = "%m/%d/%Y %H:%M"), 
+  pagos <- read_csv("pagos.csv", col_types = cols(FECHA = col_character(), 
+                                         DIA_DEL_COBRO = col_character(), 
                                          DIA_DEL_PAGO = col_character()))
   # pagos$FECHA <- as.Date(pagos$FECHA, format = "%Y-%m-%d")
   # pagos$DIA_DEL_COBRO <- as.Date(pagos$DIA_DEL_COBRO, format = "%Y-%m-%d")
