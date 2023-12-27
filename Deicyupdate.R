@@ -1,4 +1,3 @@
-# ...
 # Instala e inicia Shiny si no lo has hecho
 if (!requireNamespace("shiny", quietly = TRUE)) {
   install.packages("shiny")
@@ -6,15 +5,16 @@ if (!requireNamespace("shiny", quietly = TRUE)) {
 
 # Carga el paquete shiny
 library(shiny)
+library(readr)
 library(dplyr)
 
 # Define la base de datos inicial de pagos
 pagos <- data.frame(
-  FECHA = as.Date(character()),
+  FECHA = as.Date(character(), format = "%Y-%m-%d"),
   ID = integer(),
   NOMBRE = character(),
-  DIA_DEL_COBRO = as.Date(character()),
-  DIA_DEL_PAGO = as.Date(character()),
+  DIA_DEL_COBRO = as.Date(character(), format = "%Y-%m-%d"),
+  DIA_DEL_PAGO = as.Date(character(), format = "%Y-%m-%d"),
   VALOR_CONSULTA = integer(),
   ABONO = integer(),
   MONEDA = character(),
@@ -44,6 +44,12 @@ archivo_csv_pacientes <- "pacientes.csv"
 # Si el archivo existe, carga los datos
 if (file.exists(archivo_csv_pagos)) {
   pagos <- read.csv(archivo_csv_pagos, stringsAsFactors = FALSE)
+  read_csv("pagos.csv", col_types = cols(FECHA = col_date(format = "%m/%d/%Y"), 
+                                         DIA_DEL_COBRO = col_datetime(format = "%m/%d/%Y %H:%M"), 
+                                         DIA_DEL_PAGO = col_character()))
+  # pagos$FECHA <- as.Date(pagos$FECHA, format = "%Y-%m-%d")
+  # pagos$DIA_DEL_COBRO <- as.Date(pagos$DIA_DEL_COBRO, format = "%Y-%m-%d")
+  # pagos$DIA_DEL_PAGO <- as.Date(pagos$DIA_DEL_PAGO, format = "%Y-%m-%d")
 }
 
 if (file.exists(archivo_csv_pacientes)) {
@@ -58,11 +64,12 @@ ui <- fluidPage(
       # Panel de Pagos
       tabsetPanel(
         tabPanel("Pagos",
-                 dateInput("fechaConsulta", "Fecha de Consulta:", Sys.Date()),
+                 dateInput("fechaConsulta", "Fecha de Consulta:", Sys.Date(), format = "yyyy-mm-dd"),
                  textInput("id", "ID (Cedula):", ""),
+                 # En el UI
                  selectizeInput("nombre", "Nombre:", choices = NULL, multiple = FALSE, options = list(placeholder = 'Seleccione un paciente...')),
-                 dateInput("diaCobro", "Día del Cobro:", Sys.Date()),
-                 dateInput("diaPago", "Día del Pago:", Sys.Date()),
+                 dateInput("diaCobro", "Día del Cobro:", Sys.Date(), format = "yyyy-mm-dd"),
+                 dateInput("diaPago", "Día del Pago:", Sys.Date(), format = "yyyy-mm-dd"),
                  numericInput("valorConsulta", "Valor Consulta:", value = NULL),
                  numericInput("abono", "Abono:", value = NULL),
                  selectInput("moneda", "Moneda:", c("", "Dolar", "Pesos"), selected = ""),
@@ -85,19 +92,19 @@ ui <- fluidPage(
                  numericInput("cel", "Contacto:", value = NULL),
                  selectInput("terapia", "Terapia:", c("", "Individual", "Pareja"), selected = ""),
                  textInput("frecuencia", "Frecuencia:", ""),
-                 actionButton("registrarPaciente", "Registrar Paciente"),
-                 actionButton("modificarPaciente", "Modificar Paciente")
+                 actionButton("registrarPaciente", "Registrar Paciente")
         )
       )
     ),
     mainPanel(
       tableOutput("pagosTable"),
       tableOutput("pacientesTable"),
-      tableOutput("pacientesModificablesTable"),
       textOutput("mensajeAlerta")
     )
   )
 )
+
+# ...
 
 # Define el servidor
 server <- function(input, output, session) {
@@ -140,11 +147,14 @@ server <- function(input, output, session) {
     } else {
       # Crear nueva información de pago con la información proporcionada
       nuevo_pago <- data.frame(
-        FECHA = Sys.Date(),
+        FECHA = strftime(input$diaCobro, format = "", tz = "", usetz = FALSE),
+        #FECHA = format(Sys.Date(), "%Y-%m-%d"),
         ID = as.integer(input$id),
         NOMBRE = input$nombre,
-        DIA_DEL_COBRO = as.Date(input$diaCobro),
-        DIA_DEL_PAGO = as.Date(input$diaPago),
+        #DIA_DEL_COBRO = as.Date(input$diaCobro, format = "%Y-%m-%d"),
+        DIA_DEL_COBRO = strftime(input$diaCobro, format = "", tz = "", usetz = FALSE),
+        #DIA_DEL_PAGO = as.Date(input$diaPago, format = "%Y-%m-%d"),
+        DIA_DEL_PAGO = strftime(input$diaPago, format = "", tz = "", usetz = FALSE),
         VALOR_CONSULTA = as.integer(input$valorConsulta),
         ABONO = as.integer(input$abono),
         MONEDA = input$moneda,
@@ -161,7 +171,7 @@ server <- function(input, output, session) {
       updateDateInput(session, "fechaConsulta", value = Sys.Date())
       updateTextInput(session, "id", value = "")
       updateTextInput(session, "nombre", value = "")
-      updateDateInput(session, "diaCobro", value = Sys.Date())
+      #updateDateInput(session, "diaCobro", value = Sys.Date())
       updateDateInput(session, "diaPago", value = Sys.Date())
       updateNumericInput(session, "valorConsulta", value = NULL)
       updateNumericInput(session, "abono", value = NULL)
