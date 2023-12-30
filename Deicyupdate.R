@@ -133,62 +133,7 @@ server <- function(input, output, session) {
   })
   
   # Observador para el botón de registrar pagos
-  observeEvent(input$registrarPago, {
-    # Verificar si el paciente existe
-    paciente_existente <- pacientes_data() %>%
-      filter(ID == as.integer(input$id))
-    
-    if (nrow(paciente_existente) == 0) {
-      # Paciente no existe, mostrar mensaje de advertencia
-      output$mensajeAlerta <- renderText({
-        "No se puede registrar el pago. El paciente no existe en la base de datos."
-      })
-    } else {
-      # Crear nueva información de pago con la información proporcionada
-      nuevo_pago <- data.frame(
-        FECHA = strftime(input$fechaConsulta, format = "", tz = "", usetz = FALSE),
-        #FECHA = format(Sys.Date(), "%Y-%m-%d"),
-        ID = as.integer(input$id),
-        NOMBRE = input$nombre,
-        #DIA_DEL_COBRO = as.Date(input$diaCobro, format = "%Y-%m-%d"),
-        DIA_DEL_COBRO = strftime(input$diaCobro, format = "", tz = "", usetz = FALSE),
-        #DIA_DEL_PAGO = as.Date(input$diaPago, format = "%Y-%m-%d"),
-        DIA_DEL_PAGO = strftime(input$diaPago, format = "", tz = "", usetz = FALSE),
-        VALOR_CONSULTA = as.integer(input$valorConsulta),
-        ABONO = as.integer(input$abono),
-        MONEDA = input$moneda,
-        PAGO = as.integer(input$pago),
-        OBSERVACIONES = input$observaciones,
-        FORMA_DE_PAGO = input$formaPago,
-        stringsAsFactors = FALSE
-      )
-      
-      # Combinar el nuevo pago con los datos existentes
-      pagos_data(rbind(pagos_data(), nuevo_pago))
-      
-      # Restablecer campos después de registrar
-      updateDateInput(session, "fechaConsulta", value = Sys.Date())
-      updateTextInput(session, "id", value = "")
-      updateTextInput(session, "nombre", value = "")
-      #updateDateInput(session, "diaCobro", value = Sys.Date())
-      updateDateInput(session, "diaPago", value = Sys.Date())
-      updateNumericInput(session, "valorConsulta", value = NULL)
-      updateNumericInput(session, "abono", value = NULL)
-      updateSelectInput(session, "moneda", selected = "")
-      updateNumericInput(session, "pago", value = NULL)
-      updateTextInput(session, "observaciones", value = "")
-      updateSelectInput(session, "formaPago", selected = "")
-      
-      # Guarda los datos en el archivo CSV de pagos
-      write.csv(pagos_data(), archivo_csv_pagos, row.names = FALSE)
-      
-      # Limpiar el mensaje de advertencia
-      output$mensajeAlerta <- renderText({
-        ""
-      })
-    }
-  })
-  
+
   # Observador para el botón de registrar pacientes
   observeEvent(input$registrarPaciente, {
     # Lógica para manejar la selección de país
