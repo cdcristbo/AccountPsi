@@ -116,19 +116,20 @@ server <- function(input, output) {
       consulta <- data.frame(Resultado = "Persona no inscrita")
     }
   })
+  
   output$view2 <- renderDataTable({
     ID.i <- input$personID
     if (ID.i %in% database$ID) {
       consulta1 = database %>% dplyr::filter(ID == ID.i) %>%
-        dplyr::select(nom2)
+        dplyr::select(one_of(nom2))  # Utiliza one_of para seleccionar solo las columnas que existen
       consulta1
     } else {
       consulta1 <- data.frame(Resultado = "Persona no inscrita")
     }
   })
+  
   output$vfecha <- renderDataTable({
     db.fecha <- db.agg
-    # input$dataset
     db.fecha
   })
   
@@ -136,10 +137,12 @@ server <- function(input, output) {
     db.aldia <- db.ald
     db.aldia
   })
+  
   output$vporpagar <- renderDataTable({
     db.ppag <- db.deu
     db.ppag
   })
+  
   observeEvent(input$submit, {
     # Add user input to the data frame
     data <<- rbind(data, data.frame(Name = input$name, Age = input$age))
@@ -160,7 +163,6 @@ server <- function(input, output) {
   output$scatter_plot <- renderPlotly({
     plot_ly(data, x = ~Age, y = ~Name, type = 'scatter', mode = 'markers')
   })
-  
 }
 
 # Run the Shiny app
