@@ -4,31 +4,14 @@ library(shinydashboard)
 library(readr)
 library(ggplot2)
 library(plotly)
-library(reshape)
-library(reshape2)
-library(tidyverse)
 library(dplyr)
-library(forecast)
-library(dynlm)
-library(aTSA)
-library(olsrr)
-library(Rmisc)
-library(moderndive)
-library(magrittr)
-library(stringr)
-library(lubridate)
 library(stringi)
-library(lmtest)
-library(sandwich)
-library(ggExtra)
-library(formattable)
 library(DT)
 
-pagos <- read_csv("pagos.csv", col_types = cols(
-  FECHA = col_date(format = "%m/%d/%Y"),
-  DIA_DEL_COBRO = col_datetime(format = "%m/%d/%Y %H:%M"),
-  DIA_DEL_PAGO = col_character()
-))
+pagos <- read_csv("pagos.csv", col_types = cols(FECHA = col_character(), 
+                                                DIA_DEL_COBRO = col_character(), 
+                                                DIA_DEL_PAGO = col_character()))
+
 pacientes <- read.csv(archivo_csv_pacientes, stringsAsFactors = FALSE)
 
 database = pagos %>%
@@ -40,7 +23,8 @@ nom2 <- c(
   "ABONO", "MONEDA", "PAGO", "OBSERVACIONES", "FORMA DE PAGO"
 )
 database <- database %>% mutate(ABONO = as.numeric(ABONO), FECHA = as.Date(FECHA))
-db.agg <- database %>% group_by(FECHA, MONEDA) %>%
+db.agg <- database %>%
+  group_by(FECHA, MONEDA) %>%
   dplyr::summarise(TOTAL = sum(VALOR_CONSULTA, na.rm = TRUE))
 db.cuentas <- database %>% group_by(ID) %>%
   dplyr::summarise(
@@ -62,12 +46,49 @@ datosCont <- function() {
 ui <- navbarPage(
   tags$head(
     tags$style(
-      HTML(".shiny-notification {
-             position:fixed;
-             top: calc(70%);
-             left: calc(70%);
-             }
-             ")
+      HTML("
+        .navbar-default {
+          background-color: #337ab7;
+          border-color: #2e6da4;
+        }
+
+        .navbar-default .navbar-brand {
+          color: #ffffff;
+        }
+
+        .navbar-default .navbar-nav > li > a {
+          color: #ffffff;
+        }
+
+        .navbar-default .navbar-toggle {
+          border-color: #337ab7;
+        }
+
+        .navbar-default .navbar-toggle:hover,
+        .navbar-default .navbar-toggle:focus {
+          background-color: #337ab7;
+        }
+
+        .navbar-default .navbar-nav > .active > a,
+        .navbar-default .navbar-nav > .active > a:hover,
+        .navbar-default .navbar-nav > .active > a:focus {
+          background-color: #337ab7;
+          color: #ffffff;
+        }
+
+        .tab-content {
+          background-color: #ffffff;
+          border: 1px solid #ddd;
+          padding: 10px;
+          margin-top: 20px;
+        }
+
+        .navbar-default .navbar-nav > li > a:hover,
+        .navbar-default .navbar-nav > li > a:focus {
+          background-color: #2e6da4;
+          color: #ffffff;
+        }
+      ")
     )
   ),
   title = div(strong("POLPER")),
@@ -76,32 +97,36 @@ ui <- navbarPage(
     type = "tabs",
     tabPanel(
       "Informacion individual",
-      datosCont(),
-      h3("Datos de contacto"),
-      dataTableOutput("view1"),
-      br(),
-      br(),
-      h3("Registro historico"),
-      dataTableOutput("view2"),
-      br(),
-      verbatimTextOutput("searchResult")
+      sidebarLayout(
+        sidebarPanel(
+          textInput("personID", "Digite ID:", ""),
+          actionButton("searchButton", "Buscar")
+        ),
+        mainPanel(
+          h3("Datos de contacto"),
+          dataTableOutput("view1"),
+          br(),
+          br(),
+          h3("Registro historico"),
+          dataTableOutput("view2"),
+          br(),
+          verbatimTextOutput("searchResult")
+        )
+      )
     ),
     tabPanel(
       "Agregado mensual",
       br(),
-      # p("Digite el mes que desea consultar:"),
       dataTableOutput("vfecha")
     ),
     tabPanel(
       "Personas al dia",
       br(),
-      # p("Digite el mes que desea consultar:"),
       dataTableOutput("valdia")
     ),
     tabPanel(
       "Personas por pagar",
       br(),
-      # p("Digite el mes que desea consultar:"),
       dataTableOutput("vporpagar")
     )
   )
@@ -141,11 +166,6 @@ server <- function(input, output) {
   output$vporpagar <- renderDataTable({
     db.ppag <- db.deu
     db.ppag
-  })
-  
-  observeEvent(input$submit, {
-    # Add user input to the data frame
-    data <<- rbind(data, data.frame(Name = input$name, Age = input$age))
   })
   
   output$table <- renderTable({
