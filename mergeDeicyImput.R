@@ -110,8 +110,8 @@ ui <- fluidPage(
         ),
         tabPanel("Resumen Financiero",
                  fluidRow(
-                   column(12, tableOutput("pacientesTable")),
                    column(12, tableOutput("pagosTable")),
+                   column(12, tableOutput("pacientesTable")),
                    column(12, textOutput("mensajeAlerta"))
                  )
         )
@@ -149,6 +149,51 @@ server <- function(input, output, session) {
     updateTextInput(session, "id", value = id_seleccionado)
   })
   
+  # Observador para el botón de registrar pagos
+  observeEvent(input$registrarPago, {
+    # Lógica para manejar la selección de moneda
+    if (input$moneda == "Otro") {
+      nueva_moneda <- input$otraMoneda
+    } else {
+      nueva_moneda <- input$moneda
+    }
+    
+    # Crear nuevo pago con la información proporcionada
+    nuevo_pago <- data.frame(
+      FECHA = as.Date(input$fechaConsulta),
+      ID = as.integer(input$id),
+      NOMBRE = input$nombre,
+      DIA_DEL_COBRO = as.Date(input$diaCobro),
+      DIA_DEL_PAGO = as.Date(input$diaPago),
+      VALOR_CONSULTA = as.integer(input$valorConsulta),
+      ABONO = as.integer(input$abono),
+      MONEDA = nueva_moneda,
+      PAGO = as.integer(input$pago),
+      OBSERVACIONES = input$observaciones,
+      FORMA_DE_PAGO = input$formaPago,
+      stringsAsFactors = FALSE
+    )
+    
+    # Combinar el nuevo pago con los datos existentes
+    pagos_data(rbind(pagos_data(), nuevo_pago))
+    
+    # Restablecer campos después de registrar
+    updateDateInput(session, "fechaConsulta", value = Sys.Date())
+    updateTextInput(session, "id", value = "")
+    updateSelectizeInput(session, "nombre", selected = "")
+    updateDateInput(session, "diaCobro", value = Sys.Date())
+    updateDateInput(session, "diaPago", value = Sys.Date())
+    updateNumericInput(session, "valorConsulta", value = NULL)
+    updateNumericInput(session, "abono", value = NULL)
+    updateSelectInput(session, "moneda", selected = "")
+    updateNumericInput(session, "pago", value = NULL)
+    updateTextInput(session, "observaciones", value = "")
+    updateSelectInput(session, "formaPago", selected = "")
+    
+    # Guarda los datos en el archivo CSV de pagos
+    write.csv(pagos_data(), archivo_csv_pagos, row.names = FALSE)
+  })
+  
   # Observador para el botón de registrar pacientes
   observeEvent(input$registrarPaciente, {
     # Lógica para manejar la selección de país
@@ -174,6 +219,7 @@ server <- function(input, output, session) {
       return()
     }
     
+    # Crear nuevo paciente con la información proporcionada
     # Crear nuevo paciente con la información proporcionada
     nuevo_paciente <- data.frame(
       ID = as.integer(input$idPaciente),
@@ -210,7 +256,7 @@ server <- function(input, output, session) {
     })
   })
   
-  # Observador para el botón de mostrar historial
+  # Nuevo observador para el botón de mostrar historial
   observeEvent(input$mostrarHistorico, {
     # Validar que la cédula del paciente no esté vacía
     if (is.null(input$cedulaHistorico) || input$cedulaHistorico == "") {
