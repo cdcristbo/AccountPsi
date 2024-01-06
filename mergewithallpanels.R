@@ -103,9 +103,11 @@ ui <- fluidPage(
                    column(6, actionButton("mostrarHistorico", "Mostrar Historial"))
                  ),
                  fluidRow(
-                   column(12, tableOutput("historicoTable"))
+                   column(12, tableOutput("historicoTable2")),
+                   column(12, tableOutput("historicoTable1"))
                  )
         ),
+        
         
         tabPanel("Resumen Financiero",
                  fluidRow(
@@ -157,8 +159,7 @@ server <- function(input, output, session) {
     
     # Actualizar el campo de Nombre con el nombre correspondiente
     updateTextInput(session, "nombre", value = nombre_seleccionado)
-  })
-  
+  })  
   
   # Observador para el botón de registrar pagos
   observeEvent(input$registrarPago, {
@@ -285,9 +286,18 @@ server <- function(input, output, session) {
     historial_pagos <- pagos_data() %>%
       filter(ID == as.integer(input$cedulaHistorico))
     
-    # Mostrar el historial en la tabla
-    output$historicoTable <- renderTable({
+    # Obtener la información personal del paciente
+    info_personal_paciente <- pacientes_data() %>%
+      filter(ID == as.integer(input$cedulaHistorico))
+    
+    # Mostrar el historial financiero en la primera tabla
+    output$historicoTable1 <- renderTable({
       historial_pagos
+    })
+    
+    # Mostrar la información personal del paciente en la segunda tabla
+    output$historicoTable2 <- renderTable({
+      info_personal_paciente
     })
     
     # Limpiar el mensaje de advertencia
