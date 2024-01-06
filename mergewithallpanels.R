@@ -56,8 +56,6 @@ if (file.exists(archivo_csv_pacientes)) {
 # Define el tema "cerulean" de shinythemes para un estilo más atractivo
 theme <- shinytheme("cerulean")
 
-# ...
-
 ui <- fluidPage(
   titlePanel("Gestión de Pagos y Pacientes", windowTitle = "Gestión de Pagos"),
   theme = theme,
@@ -82,10 +80,8 @@ ui <- fluidPage(
         ),
         tabPanel("Consulta nueva",
                  dateInput("fechaConsulta", "Fecha de Consulta:", Sys.Date(), format = "yyyy-mm-dd"),
-                 #textInput("id", "ID (Cedula):", ""),
                  selectizeInput("id", "ID (Cedula):", choices = NULL, multiple = FALSE, options = list(placeholder = 'Seleccione un paciente...')),
                  textInput("nombre", "Nombre:", ""),
-                 #selectizeInput("nombre", "Nombre:", choices = NULL, multiple = FALSE, options = list(placeholder = 'Seleccione un paciente...')),
                  dateInput("diaCobro", "Día del Cobro:", Sys.Date(), format = "yyyy-mm-dd"),
                  dateInput("diaPago", "Día del Pago:", Sys.Date(), format = "yyyy-mm-dd"),
                  numericInput("valorConsulta", "Valor Consulta:", value = NULL),
@@ -97,7 +93,6 @@ ui <- fluidPage(
                  actionButton("registrarPago", "Registrar Pago")
         )
         # Panel de Pacientes
-        
       )
     ),
     mainPanel(
@@ -111,6 +106,7 @@ ui <- fluidPage(
                    column(12, tableOutput("historicoTable"))
                  )
         ),
+        
         tabPanel("Resumen Financiero",
                  fluidRow(
                    column(12, tableOutput("pagosTable")),
@@ -123,8 +119,6 @@ ui <- fluidPage(
   )
 )
 
-# ...
-
 # Define el servidor
 server <- function(input, output, session) {
   # Almacena la información de los pagos
@@ -133,24 +127,38 @@ server <- function(input, output, session) {
   # Almacena la información de los pacientes
   pacientes_data <- reactiveVal(pacientes)
   
+  # Observador para cargar datos de pacientes
+  observe({
+    if (file.exists(archivo_csv_pacientes)) {
+      pacientes_data(read.csv(archivo_csv_pacientes, stringsAsFactors = FALSE))
+    }
+  })
+  
   # Actualizar los nombres de los pacientes en el selectizeInput
   observe({
     # Aquí se supone que tus pacientes están cargados en 'pacientes_data()'
     nombres_pacientes <- pacientes_data()$NOMBRE
     # Actualizar 'selectizeInput' con los nombres de los pacientes
-    updateSelectizeInput(session, 'nombre', choices = nombres_pacientes)
+    updateSelectizeInput(session, 'id', choices = nombres_pacientes)
   })
   
-  # Observador para el cambio de paciente seleccionado
+  # Observador para el cambio de ID (Cedula) seleccionado en Consulta nueva
   observe({
-    # Obtener el ID del paciente seleccionado
-    id_seleccionado <- pacientes_data() %>%
-      filter(NOMBRE == input$nombre) %>%
-      pull(ID)
+    # Obtener el ID (Cedula) seleccionado
+    id_seleccionado_consulta <- input$id
     
-    # Actualizar el campo de ID con el ID del paciente seleccionado
-    updateTextInput(session, "id", value = id_seleccionado)
+    # Actualizar 'selectizeInput' con los IDs de los pacientes
+    updateSelectizeInput(session, "id", choices = pacientes_data()$ID, selected = id_seleccionado_consulta)
+    
+    # Buscar el nombre correspondiente al ID (Cedula) seleccionado en la base de datos de pacientes
+    nombre_seleccionado <- pacientes_data() %>%
+      filter(ID == as.integer(id_seleccionado_consulta)) %>%
+      pull(NOMBRE)
+    
+    # Actualizar el campo de Nombre con el nombre correspondiente
+    updateTextInput(session, "nombre", value = nombre_seleccionado)
   })
+  
   
   # Observador para el botón de registrar pagos
   observeEvent(input$registrarPago, {
@@ -195,6 +203,11 @@ server <- function(input, output, session) {
     
     # Guarda los datos en el archivo CSV de pagos
     write.csv(pagos_data(), archivo_csv_pagos, row.names = FALSE)
+    
+    # Limpiar el mensaje de advertencia
+    output$mensajeAlerta <- renderText({
+      ""
+    })
   })
   
   # Observador para el botón de registrar pacientes
@@ -222,7 +235,6 @@ server <- function(input, output, session) {
       return()
     }
     
-    # Crear nuevo paciente con la información proporcionada
     # Crear nuevo paciente con la información proporcionada
     nuevo_paciente <- data.frame(
       ID = as.integer(input$idPaciente),
