@@ -8,7 +8,7 @@ library(shiny)
 library(shinythemes)  # Se incluye el paquete shinythemes
 library(readr)
 library(dplyr)
-
+library(DT)
 # Define la base de datos inicial de pagos
 pagos <- data.frame(
   FECHA = as.Date(character(), format = "%Y-%m-%d"),
@@ -52,6 +52,33 @@ if (file.exists(archivo_csv_pagos)) {
 if (file.exists(archivo_csv_pacientes)) {
   pacientes <- read.csv(archivo_csv_pacientes, stringsAsFactors = FALSE)
 }
+
+database = pagos %>%
+  left_join(pacientes)
+
+nom1 <- c("ID", "NOMBRE", "PAIS", "CIUDAD", "CEL", "TERAPIA", "FRECUENCIA")
+nom2 <- c(
+  "FECHA", "ESTADO", "DIA DEL COBRO", "DIA DEL PAGO", "VALOR_CONSULTA",
+  "ABONO", "MONEDA", "PAGO", "OBSERVACIONES", "FORMA DE PAGO"
+)
+database <- database %>% mutate(ABONO = as.numeric(ABONO), FECHA = as.Date(FECHA))
+db.agg <- database %>%
+  group_by(FECHA, MONEDA) %>%
+  dplyr::summarise(TOTAL = sum(VALOR_CONSULTA, na.rm = TRUE))
+db.cuentas <- database %>% group_by(ID) %>%
+  dplyr::summarise(
+    TOTAL = sum(VALOR_CONSULTA, na.rm = TRUE),
+    ABONO = sum(ABONO, na.rm = TRUE)
+  )
+db.saldo <- db.cuentas %>% mutate(SALDO = ABONO - TOTAL)
+db.nom <- database %>% dplyr::select(nom1) %>% dplyr::distinct()
+db.cue <- db.nom %>% left_join(db.saldo, by = "ID")
+db.deu <- db.cue %>% dplyr::filter(SALDO < 0) %>% arrange(NOMBRE)
+db.ald <- db.cue %>% dplyr::filter(SALDO >= 0) %>% arrange(NOMBRE)
+
+
+# Define el tema "cerulean" de shinythemes para un estilo más atractivo
+theme <- shinytheme("cerulean")
 
 # Define el tema "cerulean" de shinythemes para un estilo más atractivo
 theme <- shinytheme("cerulean")
@@ -107,14 +134,16 @@ ui <- fluidPage(
                    column(12, tableOutput("historicoTable1"))
                  )
         ),
-        
-        
         tabPanel("Resumen Financiero",
                  fluidRow(
                    column(12, tableOutput("pagosTable")),
                    column(12, tableOutput("pacientesTable")),
                    column(12, textOutput("mensajeAlerta"))
                  )
+        ),
+        tabPanel("Información mensual",
+                 br(),
+                 dataTableOutput("vfecha")
         )
       )
     )
@@ -315,7 +344,13 @@ server <- function(input, output, session) {
   output$pacientesTable <- renderTable({
     pacientes_data()
   })
+  
+  # Output para la tabla "Información mensual"
+  output$vfecha <- renderDataTable({
+    db.agg
+  })
 }
+
 
 # Ejecuta la aplicación Shiny
 shinyApp(ui, server)
