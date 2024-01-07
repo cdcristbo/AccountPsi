@@ -44,14 +44,17 @@ archivo_csv_pacientes <- "pacientes.csv"
 
 # Si el archivo existe, carga los datos
 if (file.exists(archivo_csv_pagos)) {
-  pagos <- read_csv("pagos.csv", col_types = cols(FECHA = col_character(), 
-                                                  DIA_DEL_COBRO = col_character(), 
-                                                  DIA_DEL_PAGO = col_character()))
+  pagos <- read_csv(archivo_csv_pagos, col_types = cols(FECHA = col_character(), 
+                                                        DIA_DEL_COBRO = col_character(), 
+                                                        DIA_DEL_PAGO = col_character()))
 }
 
 if (file.exists(archivo_csv_pacientes)) {
   pacientes <- read.csv(archivo_csv_pacientes, stringsAsFactors = FALSE)
 }
+
+# Utiliza reactiveVal para almacenar la información de pacientes
+pacientes_data <- reactiveVal(pacientes)
 
 database = pagos %>%
   left_join(pacientes)
@@ -76,13 +79,10 @@ db.cue <- db.nom %>% left_join(db.saldo, by = "ID")
 db.deu <- db.cue %>% dplyr::filter(SALDO < 0) %>% arrange(NOMBRE)
 db.ald <- db.cue %>% dplyr::filter(SALDO >= 0) %>% arrange(NOMBRE)
 
-
 # Define el tema "cerulean" de shinythemes para un estilo más atractivo
 theme <- shinytheme("cerulean")
 
-# Define el tema "cerulean" de shinythemes para un estilo más atractivo
-theme <- shinytheme("cerulean")
-
+# Define la interfaz de usuario (UI)
 ui <- fluidPage(
   titlePanel("Gestión de Pagos y Pacientes", windowTitle = "Gestión de Pagos"),
   theme = theme,
@@ -118,8 +118,14 @@ ui <- fluidPage(
                  textInput("observaciones", "Observaciones:", ""),
                  selectInput("formaPago", "Forma de Pago:", c("", "Efectivo", "Credito"), selected = ""),
                  actionButton("registrarPago", "Registrar Pago")
+        ),
+        # Nueva pestaña para eliminar pacientes
+        tabPanel("Eliminar Paciente",
+                 fluidRow(
+                   column(6, selectizeInput("eliminarPaciente", "Seleccione un paciente:", choices = NULL)),
+                   column(6, actionButton("eliminarButton", "Eliminar Paciente"))
+                 )
         )
-        # Panel de Pacientes
       )
     ),
     mainPanel(
@@ -193,6 +199,32 @@ server <- function(input, output, session) {
     # Actualizar el campo de Nombre con el nombre correspondiente
     updateTextInput(session, "nombre", value = nombre_seleccionado)
   })  
+  # Actualizar las opciones en el selectizeInput de pacientes
+  observe({
+    updateSelectizeInput(session, "eliminarPaciente", choices = pacientes_data()$ID)
+  })
+  # Observador para el botón de eliminar pacientes
+  observeEvent(input$eliminarButton, {
+    req(input$eliminarPaciente)
+    
+    # Obtener el ID del paciente seleccionado para eliminar
+    id_paciente <- as.integer(input$eliminarPaciente)
+    
+    # Filtrar la base de datos de pacientes para excluir al paciente seleccionado
+    pacientes_data_updated <- pacientes_data() %>%
+      filter(ID != id_paciente)
+    
+    # También puedes querer eliminar registros asociados en la base de datos de pagos
+    pagos_data_updated <- pagos_data() %>%
+      filter(ID != id_paciente)
+    
+    # Actualizar los reactiveValues con los nuevos datos filtrados
+    pacientes_data(pacientes_data_updated)
+    pagos_data(pagos_data_updated)
+    
+    # Actualizar las opciones en el selectizeInput de pacientes
+    updateSelectizeInput(session, "eliminarPaciente", choices = pacientes_data_updated$ID)
+  })
   
   # Observador para el botón de registrar pagos
   observeEvent(input$registrarPago, {
@@ -353,11 +385,10 @@ server <- function(input, output, session) {
   output$vfecha <- renderDataTable({
     db.agg
   })
-
-
-output$ppagar <- renderDataTable({
-  db.deu
-})
+  
+  output$ppagar <- renderDataTable({
+    db.deu
+  })
 }
 
 # Ejecuta la aplicación Shiny
