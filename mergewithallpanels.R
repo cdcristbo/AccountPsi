@@ -144,6 +144,10 @@ ui <- fluidPage(
         tabPanel("Información mensual",
                  br(),
                  dataTableOutput("vfecha")
+        ),
+        tabPanel("Personas por pagar",
+                 br(),
+                 dataTableOutput("ppagar")
         )
       )
     )
@@ -349,8 +353,12 @@ server <- function(input, output, session) {
   output$vfecha <- renderDataTable({
     db.agg
   })
-}
 
+
+output$ppagar <- renderDataTable({
+  db.deu
+})
+}
 
 # Ejecuta la aplicación Shiny
 shinyApp(ui, server)
